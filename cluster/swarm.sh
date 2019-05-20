@@ -124,14 +124,12 @@ up_network ()
     printf "$ docker network create  \\
                 --driver overlay      \\
                 --subnet %s  \\
-                --opt encrypted       \\
                 %s\n" "${NETWORK_SUBNET}" "${NETWORK_NAME}"
     printf "\n"
 
     docker network create               \
             --driver overlay            \
             --subnet ${NETWORK_SUBNET}  \
-            --opt encrypted             \
             ${NETWORK_NAME}
 
     echo "=> network is created"

@@ -1,4 +1,4 @@
-FROM nlknguyen/alpine-mpich:onbuild
+FROM pietersynthesis/alpine-mpich:onbuild
 
 # # ------------------------------------------------------------
 # # Build MPI project
