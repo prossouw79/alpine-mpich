@@ -289,9 +289,9 @@ build_and_push_image ()
 {
     printf "\n\n===> BUILD IMAGE"
     printf "\n%s\n" "$HEADER"
-    echo "$ docker build -t \"$IMAGE_TAG\" ."
+    echo "$ docker build --compress -t \"$IMAGE_TAG\" ."
     printf "\n"
-    docker build -t "$IMAGE_TAG" .
+    docker build --compress -t "$IMAGE_TAG" .
 
     printf "\n"
 
@@ -299,7 +299,7 @@ build_and_push_image ()
     printf "\n%s\n" "$HEADER"
     echo "$ docker push \"$IMAGE_TAG\""
     printf "\n"
-    docker push "$IMAGE_TAG"
+    # docker push "$IMAGE_TAG"
 }
 
 
