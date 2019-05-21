@@ -31,6 +31,9 @@ docker system prune --volumes -f
 docker build --compress -t pietersynthesis/alpine-mpich-arm7l base/
 docker build --compress -t pietersynthesis/alpine-mpich-arm7l:onbuild onbuild/
 
+docker push pietersynthesis/alpine-mpich-arm7l
+docker push pietersynthesis/alpine-mpich-arm7l:onbuild
+
 cd cluster
 ./swarm.sh config set \
     IMAGE_TAG=pietersynthesis/alpine-mpich-arm7l      \

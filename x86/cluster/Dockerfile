@@ -1,4 +1,4 @@
-FROM pietersynthesis/alpine-mpich:onbuild
+FROM pietersynthesis/alpine-mpich-x86_64:onbuild
 
 # # ------------------------------------------------------------
 # # Build MPI project

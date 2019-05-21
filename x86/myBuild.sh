@@ -28,12 +28,15 @@ docker network rm $NETNAME
 
 
 docker system prune --volumes -f
-docker build --compress -t pietersynthesis/alpine-mpich-x86 base/
-docker build --compress -t pietersynthesis/alpine-mpich-x86:onbuild onbuild/
+docker build --compress -t pietersynthesis/alpine-mpich-x86_64 base/
+docker build --compress -t pietersynthesis/alpine-mpich-x86_64:onbuild onbuild/
+
+docker push pietersynthesis/alpine-mpich-x86_64
+docker push pietersynthesis/alpine-mpich-x86_64:onbuild
 
 cd cluster
 ./swarm.sh config set \
-    IMAGE_TAG=pietersynthesis/alpine-mpich      \
+    IMAGE_TAG=pietersynthesis/alpine-mpich-x86_64      \
     PROJECT_NAME=$PROJNAME  \
     NETWORK_NAME=$NETNAME    \
     NETWORK_SUBNET=10.0.0.0/28   \

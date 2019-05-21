@@ -1,4 +1,4 @@
-FROM pietersynthesis/alpine-mpich:latest
+FROM pietersynthesis/alpine-mpich-armv7l:latest
 
 USER root
 
