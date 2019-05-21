@@ -1,7 +1,7 @@
 #!/bin/bash
 PROJNAME=test-local-project
 NETNAME=$PROJNAME-network
-ARCH=arm7l
+ARCH=armv7l
 
 LOCALARCH=$(uname -m)
 
