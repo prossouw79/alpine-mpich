@@ -2,7 +2,7 @@ FROM alpine:3.4
 # In case the main package repositories are down, use the alternative base image:
 # FROM gliderlabs/alpine:3.4
 
-ARG REQUIRE="sudo build-base nodejs"
+ARG REQUIRE="sudo build-base nodejs nano nmap"
 RUN apk update && apk upgrade \
       && apk add --no-cache ${REQUIRE}
 
