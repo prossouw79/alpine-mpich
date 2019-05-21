@@ -299,7 +299,7 @@ build_and_push_image ()
     printf "\n%s\n" "$HEADER"
     echo "$ docker push \"$IMAGE_TAG\""
     printf "\n"
-    # docker push "$IMAGE_TAG"
+    docker push "$IMAGE_TAG"
 }
 
 

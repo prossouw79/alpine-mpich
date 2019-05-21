@@ -139,7 +139,7 @@ build_and_push_image ()
     printf "\n%s\n" "$HEADER"
     echo "$ docker push \"$REGISTRY_ADDR:$REGISTRY_PORT/$IMAGE_NAME\""
     printf "\n"
-    # docker push "$REGISTRY_ADDR:$REGISTRY_PORT/$IMAGE_NAME"
+    docker push "$REGISTRY_ADDR:$REGISTRY_PORT/$IMAGE_NAME"
 }
 
 up_master ()
