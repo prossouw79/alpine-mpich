@@ -22,17 +22,17 @@ chmod 600 cluster/ssh/id_rsa.pub
 docker swarm leave -f
 docker swarm init
 
-docker kill $(docker ps -q)
-docker rm $(docker ps -a -q)
-docker network rm $NETNAME
+# docker kill $(docker ps -q)
+# docker rm $(docker ps -a -q)
+# docker network rm $NETNAME
 
 
-docker system prune --volumes -f
+# docker system prune --volumes -f
 docker build --compress -t pietersynthesis/alpine-mpich-x86_64 base/
-docker build --compress -t pietersynthesis/alpine-mpich-x86_64:onbuild onbuild/
+# docker build --compress -t pietersynthesis/alpine-mpich-x86_64:onbuild onbuild/
 
-docker push pietersynthesis/alpine-mpich-x86_64
-docker push pietersynthesis/alpine-mpich-x86_64:onbuild
+# docker push pietersynthesis/alpine-mpich-x86_64
+# docker push pietersynthesis/alpine-mpich-x86_64:onbuild
 
 cd cluster
 ./swarm.sh config set \
