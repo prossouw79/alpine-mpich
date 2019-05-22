@@ -22,9 +22,10 @@ WORKDIR /tmp/mpich-src
 RUN wget http://www.mpich.org/static/downloads/${MPICH_VERSION}/mpich-${MPICH_VERSION}.tar.gz \
       && tar xfz mpich-${MPICH_VERSION}.tar.gz  \
       && cd mpich-${MPICH_VERSION}  \
-      && ./configure ${MPICH_CONFIGURE_OPTIONS}  \
-      && make ${MPICH_MAKE_OPTIONS} && make install \
-      && rm -rf /tmp/mpich-src
+      && ./configure ${MPICH_CONFIGURE_OPTIONS}
+WORKDIR /tmp/mpich-src/mpich-${MPICH_VERSION}
+RUN make ${MPICH_MAKE_OPTIONS} 
+RUN make install && rm -rf /tmp/mpich-src
 
 
 #### TEST MPICH INSTALLATION ####
@@ -33,26 +34,6 @@ WORKDIR /tmp/mpich-test
 COPY mpich-test .
 RUN sh test.sh
 RUN rm -rf /tmp/mpich-test
-
-
-#### OSU INSTALLATION ####
-USER root
-
-RUN mkdir /root/osu
-WORKDIR /root/osu
-
-RUN wget http://mvapich.cse.ohio-state.edu:8080/download/mvapich/osu-micro-benchmarks-5.6.1.tar.gz 
-RUN tar -xvf osu-micro-benchmarks-5.6.1.tar.gz
-RUN rm osu-micro-benchmarks-5.6.1.tar.gz
-WORKDIR /root/osu/osu-micro-benchmarks-5.6.1
-RUN ./configure CC=$(which mpicc) CXX=$(which mpicxx)
-RUN make -j 4
-RUN make install
-RUN rm -rf /root/osu
-
-RUN ln -s /usr/local/libexec/osu-micro-benchmarks/mpi/collective/* /usr/local/bin/
-RUN ln -s /usr/local/libexec/osu-micro-benchmarks/mpi/one-sided/* /usr/local/bin/
-RUN ln -s /usr/local/libexec/osu-micro-benchmarks/mpi/pt2pt/* /usr/local/bin/
 
 #### CLEAN UP ####
 WORKDIR /
