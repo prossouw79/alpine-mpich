@@ -1,29 +1,8 @@
-FROM pietersynthesis/alpine-mpich-armv7l:latest
+FROM pietersynthesis/alpine-mpich-armv7l:base
 
 USER root
 
 RUN apk add --no-cache openssh 
-
-
-#### OSU INSTALLATION ####
-USER root
-
-RUN mkdir /root/osu
-WORKDIR /root/osu
-
-RUN wget http://mvapich.cse.ohio-state.edu:8080/download/mvapich/osu-micro-benchmarks-5.6.1.tar.gz 
-RUN tar -xvf osu-micro-benchmarks-5.6.1.tar.gz
-RUN rm osu-micro-benchmarks-5.6.1.tar.gz
-WORKDIR /root/osu/osu-micro-benchmarks-5.6.1
-RUN ./configure CC=$(which mpicc) CXX=$(which mpicxx)
-RUN make -j 4
-RUN make install
-RUN rm -rf /root/osu
-
-RUN ln -s /usr/local/libexec/osu-micro-benchmarks/mpi/collective/* /usr/local/bin/
-RUN ln -s /usr/local/libexec/osu-micro-benchmarks/mpi/one-sided/* /usr/local/bin/
-RUN ln -s /usr/local/libexec/osu-micro-benchmarks/mpi/pt2pt/* /usr/local/bin/
-
 
 # # ------------------------------------------------------------
 # # Utility shell scripts

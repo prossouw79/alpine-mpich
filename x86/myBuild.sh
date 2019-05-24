@@ -17,34 +17,38 @@ rm -rf ~/.ssh
 chmod 600 cluster/ssh/id_rsa
 chmod 600 cluster/ssh/id_rsa.pub
 
-# sudo service docker restart
+echo "Building base image"
+docker build --compress -t pietersynthesis/alpine-mpich-x86_64:base base/
+echo "Building onbuild image"
+docker build --compress -t pietersynthesis/alpine-mpich-x86_64:onbuild onbuild/
+echo "Building cluster image"
+docker build --compress  -t pietersynthesis/alpine-mpich-x86_64:cluster cluster/
 
+# docker push pietersynthesis/alpine-mpich-x86_64:base
+# docker push pietersynthesis/alpine-mpich-x86_64:onbuild
+# docker push pietersynthesis/alpine-mpich-x86_64:cluster
+
+cd cluster
+
+docker kill $(docker ps -q)
+docker rm $(docker ps -a -q)
+docker network rm $NETNAME
+
+sudo service docker restart
 docker swarm leave -f
 docker swarm init
 
-# docker kill $(docker ps -q)
-# docker rm $(docker ps -a -q)
-# docker network rm $NETNAME
 
-
-# docker system prune --volumes -f
-docker build --compress -t pietersynthesis/alpine-mpich-x86_64 base/
-# docker build --compress -t pietersynthesis/alpine-mpich-x86_64:onbuild onbuild/
-
-# docker push pietersynthesis/alpine-mpich-x86_64
-# docker push pietersynthesis/alpine-mpich-x86_64:onbuild
-
-cd cluster
 ./swarm.sh config set \
-    IMAGE_TAG=pietersynthesis/alpine-mpich-x86_64      \
+    IMAGE_TAG=pietersynthesis/alpine-mpich-x86_64:cluster      \
     PROJECT_NAME=$PROJNAME  \
     NETWORK_NAME=$NETNAME    \
     NETWORK_SUBNET=10.0.0.0/28   \
     SSH_ADDR=localhost      \
     SSH_PORT=2222
 
-./swarm.sh up size=2
+./swarm.sh up size=6
 
-docker network inspect $NETNAME | grep "IPv4Address"| grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}"
+# docker network inspect $NETNAME | grep "IPv4Address"| grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}"
 
-./swarm.sh help
+# ./swarm.sh help

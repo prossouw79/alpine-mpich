@@ -1,6 +1,6 @@
 FROM alpine
 
-ARG REQUIRE="sudo build-base nodejs nano nmap"
+ARG REQUIRE="sudo build-base nodejs npm nano nmap git zip"
 RUN apk update && apk upgrade \
       && apk add --no-cache ${REQUIRE}
 
@@ -27,7 +27,6 @@ WORKDIR /tmp/mpich-src/mpich-${MPICH_VERSION}
 RUN make ${MPICH_MAKE_OPTIONS} 
 RUN make install && rm -rf /tmp/mpich-src
 
-
 #### TEST MPICH INSTALLATION ####
 RUN mkdir /tmp/mpich-test
 WORKDIR /tmp/mpich-test
@@ -35,11 +34,28 @@ COPY mpich-test .
 RUN sh test.sh
 RUN rm -rf /tmp/mpich-test
 
-
 #### CLEAN UP ####
 WORKDIR /
 RUN rm -rf /tmp/*
 
+#### OSU INSTALLATION ####
+USER root
+
+RUN mkdir /root/osu
+WORKDIR /root/osu
+
+RUN wget http://mvapich.cse.ohio-state.edu:8080/download/mvapich/osu-micro-benchmarks-5.6.1.tar.gz 
+RUN tar -xvf osu-micro-benchmarks-5.6.1.tar.gz
+RUN rm osu-micro-benchmarks-5.6.1.tar.gz
+WORKDIR /root/osu/osu-micro-benchmarks-5.6.1
+RUN ./configure CC=$(which mpicc) CXX=$(which mpicxx)
+RUN make -j 4
+RUN make install
+RUN rm -rf /root/osu
+
+RUN ln -s /usr/local/libexec/osu-micro-benchmarks/mpi/collective/* /usr/local/bin/
+RUN ln -s /usr/local/libexec/osu-micro-benchmarks/mpi/one-sided/* /usr/local/bin/
+RUN ln -s /usr/local/libexec/osu-micro-benchmarks/mpi/pt2pt/* /usr/local/bin/
 
 #### ADD DEFAULT USER ####
 ARG USER=mpi

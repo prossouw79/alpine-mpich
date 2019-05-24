@@ -11,10 +11,17 @@ FROM pietersynthesis/alpine-mpich-x86_64:onbuild
 
 # Copy the content of `project` directory in the host machine to 
 # the current working directory in this Docker image
+
 COPY project/ .
+WORKDIR /project/osu_parser
+USER root 
+RUN chown ${USER}:${USER} -R ../osu_parser
+USER ${USER}
+RUN npm install
+RUN node index.js default
 
 # Normal build command
-RUN mpicc -o mpi_hello_world mpi_hello_world.c
+# RUN mpicc -o mpi_hello_world mpi_hello_world.c
 
 # ####################
 # For Docker beginner:

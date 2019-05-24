@@ -12,6 +12,7 @@ services:
     entrypoint: ["mpi_bootstrap", "role=master", "mpi_master_service_name=master", "mpi_worker_service_name=worker"]
     ports:
       - "${SSH_PORT}:22"
+      - "3000:3000"
     networks:
       - net
 

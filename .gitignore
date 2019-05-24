@@ -1,3 +1,21 @@
 draft
 
 cluster/swarm\.conf
+
+x86/cluster/project/osu_parser/node_modules/
+
+x86/cluster/project/osu_parser/package-lock\.json
+
+armv7l/cluster/project/osu_parser/node_modules/
+
+armv7l/cluster/project/osu_parser/package-lock\.json
+
+.vscode/
+
+armv7l/cluster/project/osu_parser/results/
+
+x86/cluster/project/osu_parser/results/
+
+armv7l/cluster/project/osu_parser/resultSets
+
+x86/cluster/project/osu_parser/resultSets
