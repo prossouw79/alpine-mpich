@@ -2,14 +2,43 @@ let shell = require('shelljs');
 let os = require('os')
 let _ = require('lodash');
 const fs = require('fs');
+const path = require('path');
+const AWS = require('aws-sdk');
 const folder = 'results';
 const { prompt } = require('prompts');
 let moment = require('moment');
+
+let awsEnvironmentVars = {};
+shell.exec(`env | grep AWS`).stdout.split(os.EOL).filter(x => x.length > 0).map(function (x) {
+    let parts = x.split('=');
+    awsEnvironmentVars[parts[0]] = parts[1];
+})
+console.log(awsEnvironmentVars)
+
+const aws_access = awsEnvironmentVars.AWSACCESS
+const aws_secret = awsEnvironmentVars.AWSSECRET
+const s3_bucket = awsEnvironmentVars.AWSS3BUCKET
+
+let s3Upload = true;
+var s3 = null;
+if (!aws_access || !aws_secret || !s3_bucket) {
+    s3Upload = false;
+    console.warn(`No aws credentials found as environment variables. S3 upload will be disabled.`)
+    console.warn(`Set: export AWSACCESS=<>, export AWSSECRET=<> and export AWSS3BUCKET=<>`)
+} else {
+    AWS.config.update({
+        accessKeyId: aws_access,
+        secretAccessKey: aws_secret
+    });
+    s3 = new AWS.S3();
+}
 
 var argv = require('minimist')(process.argv.slice(2));
 let resultFolder = 'results'
 
 let minimalMode = argv['_'].includes('default');
+let localOnly = argv['_'].includes('local');
+
 console.log(minimalMode ? 'Running in local testing mode' : 'Running in interactive mode');
 
 //web server
@@ -35,11 +64,12 @@ for (let i = 2; i < 18; i++) {
 }
 let nodes = ['10.0.0.11', '10.0.0.12', '10.0.0.13'];
 
-if (minimalMode)
+if (minimalMode || localOnly)
     nodes = ['127.0.0.1', 'localhost', `${os.hostname()}`];
 else
     nodes = shell.exec(`nmap -sP 10.0.0.0/24 | grep "(10.0.0" | grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}"`).stdout.split(`\n`).filter(x => x.length > 0);
 
+console.log('Testing MPI access to nodes', nodes)
 let mpiTestResults = shell.exec(`mpirun -hosts ${nodes.join(',')} hostname`).stdout.split(`\n`).filter(x => x.length > 0);
 
 let threads = []
@@ -795,7 +825,6 @@ function run(conf) {
                             break;
                         }
                 }
-                console.log('Raw:', processedResults)
             }
         })
 
@@ -806,15 +835,12 @@ function run(conf) {
 
         shell.exec(`mkdir -p csv`)
 
-        let csvStream = fs.createWriteStream(`${resultFolder}/${subfolder}/${conf.testTag}.csv`, {
-            flags: 'a' //append
-        });
-
+        let csvString = '';
         //build csv
         Object.keys(processedResults).forEach(key => {
             let bench = processedResults[key];
             if (!bench.runs || bench.runs.length == 0) {
-                console.error('Bench does not have runs!', bench);
+                // console.error('Bench does not have runs!', bench);
             } else {
                 let data = [];
                 //get keys (message size)
@@ -860,27 +886,20 @@ function run(conf) {
                     `Results of ${key} in test ${subfolder}`,
                     `${key.replace('_', '-')}-${subfolder}`);
 
-                let latexStream = fs.createWriteStream(`${resultFolder}/${subfolder}/${key}-${conf.testTag}.tex`);
-                latexStream.write(latexTable);
-                latexStream.close()
+                fs.writeFileSync(`${resultFolder}/${subfolder}/${key}-${conf.testTag}.tex`, latexTable);
+                console.log('Saved LaTex');
 
                 csvLines.forEach(l => {
-                    csvStream.write(l + '\n');
+                    csvString += l + os.EOL;
                 });
+                fs.writeFileSync(`${resultFolder}/${subfolder}/${conf.testTag}.csv`, csvString);
+                console.log('Saved CSV')
+
             }
+
         });
-        csvStream.end();
 
-        // process.exit();
-
-
-        console.log('Saved LaTex');
-        console.log('Saved CSV')
-        let jsonStream = fs.createWriteStream(`${resultFolder}/${subfolder}/${conf.testTag}.json`, {
-            flags: 'a' //append
-        });
-        jsonStream.write(JSON.stringify(processedResults))
-        jsonStream.close();
+        let jsonStream = fs.writeFileSync(`${resultFolder}/${subfolder}/${conf.testTag}.json`, JSON.stringify(processedResults))
         console.log('Saved JSON')
 
         //replace zip
@@ -888,6 +907,29 @@ function run(conf) {
         shell.exec(`mkdir -p resultSets`);
         shell.exec(`zip -r9 ${conf.testTag}.zip ${resultFolder}/${subfolder}`);
         shell.exec(`mv -f ${conf.testTag}.zip resultSets/`);
+        let zipPath = `resultSets/${conf.testTag}.zip`;
+
+        console.log("UPLOAD:", s3Upload, minimalMode)
+        if (s3Upload && !minimalMode) {
+            //configuring parameters
+            var params = {
+                Bucket: s3_bucket,
+                Body: fs.createReadStream(zipPath),
+                Key: Date.now() + "_" + path.basename(zipPath)
+            };
+
+            s3.upload(params, function (err, data) {
+                //handle error
+                if (err) {
+                    console.log("Error", err);
+                }
+
+                //success
+                if (data) {
+                    console.log("Uploaded in:", data.Location);
+                }
+            });
+        }
     });
 
     if (!minimalMode) {
