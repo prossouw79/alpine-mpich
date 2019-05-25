@@ -17,34 +17,30 @@ rm -rf ~/.ssh
 chmod 600 cluster/ssh/id_rsa
 chmod 600 cluster/ssh/id_rsa.pub
 
-REGISTRY=local-registry:5000
-BASEIMAGE="$REGISTRY/alpine-mpich-x86_64:base"
-ONBUILDIMAGE="$REGISTRY/alpine-mpich-x86_64:onbuild"
-CLUSTERIMAGE="$REGISTRY/alpine-mpich-x86_64:cluster"
-
 echo "Building base image"
-docker build -t $BASEIMAGE base/
+docker build --compress -t pietersynthesis/alpine-mpich-x86_64:base base/
 echo "Building onbuild image"
-docker build -t $ONBUILDIMAGE onbuild/
+docker build --compress -t pietersynthesis/alpine-mpich-x86_64:onbuild onbuild/
 echo "Building cluster image"
-docker build -t $CLUSTERIMAGE cluster/
+docker build --compress  -t pietersynthesis/alpine-mpich-x86_64:cluster cluster/
 
-docker push $BASEIMAGE
-docker push $ONBUILDIMAGE
-docker push $CLUSTERIMAGE 
+# docker push pietersynthesis/alpine-mpich-x86_64:base
+# docker push pietersynthesis/alpine-mpich-x86_64:onbuild
+# docker push pietersynthesis/alpine-mpich-x86_64:cluster
 
 cd cluster
 
-# docker kill $(docker ps -q)
-# docker rm $(docker ps -a -q)
-# docker network rm $NETNAME
+docker kill $(docker ps -q)
+docker rm $(docker ps -a -q)
+docker network rm $NETNAME
 
-# sudo service docker restart
-# docker swarm leave -f
-# docker swarm init
+sudo service docker restart
+docker swarm leave -f
+docker swarm init
+
 
 ./swarm.sh config set \
-    IMAGE_TAG=$CLUSTERIMAGE      \
+    IMAGE_TAG=pietersynthesis/alpine-mpich-x86_64:cluster      \
     PROJECT_NAME=$PROJNAME  \
     NETWORK_NAME=$NETNAME    \
     NETWORK_SUBNET=20.0.0.0/28   \

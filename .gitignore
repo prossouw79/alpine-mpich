@@ -1,5 +1,7 @@
 draft
 
+cluster/swarm\.conf
+
 x86/cluster/project/osu_parser/node_modules/
 
 x86/cluster/project/osu_parser/package-lock\.json

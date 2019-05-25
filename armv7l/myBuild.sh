@@ -1,6 +1,7 @@
 #!/bin/bash
 PROJNAME=test-local-project
 NETNAME=$PROJNAME-network
+#export NETNAME=test-local-project-network
 ARCH=armv7l
 
 LOCALARCH=$(uname -m)
@@ -17,41 +18,38 @@ rm -rf ~/.ssh
 chmod 600 cluster/ssh/id_rsa
 chmod 600 cluster/ssh/id_rsa.pub
 
-REGISTRY=local-registry:5000
-BASEIMAGE="$REGISTRY/alpine-mpich-armv7l:base"
-ONBUILDIMAGE="$REGISTRY/alpine-mpich-armv7l:onbuild"
-CLUSTERIMAGE="$REGISTRY/alpine-mpich-armv7l:cluster"
-
 echo "Building base image"
-docker build -t $BASEIMAGE base/
+docker build --compress -t pietersynthesis/alpine-mpich-armv7l:base base/
 echo "Building onbuild image"
-docker build -t $ONBUILDIMAGE onbuild/
+docker build --compress -t pietersynthesis/alpine-mpich-armv7l:onbuild onbuild/
 echo "Building cluster image"
-docker build -t $CLUSTERIMAGE cluster/
+docker build --compress  -t pietersynthesis/alpine-mpich-armv7l:cluster cluster/
 
-docker push $BASEIMAGE
-docker push $ONBUILDIMAGE
-docker push $CLUSTERIMAGE 
+# docker push pietersynthesis/alpine-mpich-armv7l:base
+# docker push pietersynthesis/alpine-mpich-armv7l:onbuild
+# docker push pietersynthesis/alpine-mpich-armv7l:cluster
 
 cd cluster
 
-# docker kill $(docker ps -q)
-# docker rm $(docker ps -a -q)
-# docker network rm $NETNAME
+docker kill $(docker ps -q)
+docker rm $(docker ps -a -q)
+docker network rm $NETNAME
 
-# sudo service docker restart
-# docker swarm leave -f
-# docker swarm init
+sudo service docker restart
+docker swarm leave -f
+docker swarm init --advertise-addr 20.0.0.11
+
 
 ./swarm.sh config set \
-    IMAGE_TAG=$CLUSTERIMAGE      \
+    IMAGE_TAG=pietersynthesis/alpine-mpich-armv7l:cluster      \
     PROJECT_NAME=$PROJNAME  \
     NETWORK_NAME=$NETNAME    \
     NETWORK_SUBNET=20.0.0.0/28   \
-    SSH_ADDR=localhost      \
+    SSH_ADDR=20.0.0.11      \
     SSH_PORT=2222
 
-./swarm.sh up size=6
+./swarm.sh up size=3
+./swarm.sh login
 
 # docker network inspect $NETNAME | grep "IPv4Address"| grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}"
 
