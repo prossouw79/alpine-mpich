@@ -250,11 +250,13 @@ let collective = [
 
     //remove older runs in this dir
     fs.readdir(resultFolder, (err, files) => {
-        files.forEach(file => {
-            if (file.endsWith('.out') && file.startsWith(conf.testTag)) {
-                shell.exec(`rm ${resultFolder}/${file}`)
-            }
-        })
+        if (files) {
+            files.forEach(file => {
+                if (file.endsWith('.out') && file.startsWith(conf.testTag)) {
+                    shell.exec(`rm ${resultFolder}/${file}`)
+                }
+            })
+        }
     })
 
     run(conf)
@@ -909,7 +911,6 @@ function run(conf) {
         shell.exec(`mv -f ${conf.testTag}.zip resultSets/`);
         let zipPath = `resultSets/${conf.testTag}.zip`;
 
-        console.log("UPLOAD:", s3Upload, minimalMode)
         if (s3Upload && !minimalMode) {
             //configuring parameters
             var params = {

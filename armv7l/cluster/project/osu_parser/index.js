@@ -250,11 +250,13 @@ let collective = [
 
     //remove older runs in this dir
     fs.readdir(resultFolder, (err, files) => {
-        files.forEach(file => {
-            if (file.endsWith('.out') && file.startsWith(conf.testTag)) {
-                shell.exec(`rm ${resultFolder}/${file}`)
-            }
-        })
+        if (files) {
+            files.forEach(file => {
+                if (file.endsWith('.out') && file.startsWith(conf.testTag)) {
+                    shell.exec(`rm ${resultFolder}/${file}`)
+                }
+            })
+        }
     })
 
     run(conf)
