@@ -1,0 +1,13 @@
+version: '3.0'
+ 
+services:
+  my-registry:
+    image: registry:latest
+    container_name: local-registry
+    volumes:
+      - registry:/var/lib/registry
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+volumes:
+  registry:

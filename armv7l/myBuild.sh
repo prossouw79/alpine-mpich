@@ -1,7 +1,6 @@
 #!/bin/bash
 PROJNAME=test-local-project
 NETNAME=$PROJNAME-network
-#export NETNAME=test-local-project-network
 ARCH=armv7l
 
 LOCALARCH=$(uname -m)
@@ -18,38 +17,41 @@ rm -rf ~/.ssh
 chmod 600 cluster/ssh/id_rsa
 chmod 600 cluster/ssh/id_rsa.pub
 
-echo "Building base image"
-docker build --compress -t pietersynthesis/alpine-mpich-armv7l:base base/
-echo "Building onbuild image"
-docker build --compress -t pietersynthesis/alpine-mpich-armv7l:onbuild onbuild/
-echo "Building cluster image"
-docker build --compress  -t pietersynthesis/alpine-mpich-armv7l:cluster cluster/
+REGISTRY=local-registry:5000
+BASEIMAGE="$REGISTRY/alpine-mpich-armv7l:base"
+ONBUILDIMAGE="$REGISTRY/alpine-mpich-armv7l:onbuild"
+CLUSTERIMAGE="$REGISTRY/alpine-mpich-armv7l:cluster"
 
-# docker push pietersynthesis/alpine-mpich-armv7l:base
-# docker push pietersynthesis/alpine-mpich-armv7l:onbuild
-# docker push pietersynthesis/alpine-mpich-armv7l:cluster
+echo "Building base image"
+docker build -t $BASEIMAGE base/
+echo "Building onbuild image"
+docker build -t $ONBUILDIMAGE onbuild/
+echo "Building cluster image"
+docker build -t $CLUSTERIMAGE cluster/
+
+docker push $BASEIMAGE
+docker push $ONBUILDIMAGE
+docker push $CLUSTERIMAGE 
 
 cd cluster
 
-docker kill $(docker ps -q)
-docker rm $(docker ps -a -q)
-docker network rm $NETNAME
+# docker kill $(docker ps -q)
+# docker rm $(docker ps -a -q)
+# docker network rm $NETNAME
 
-sudo service docker restart
-docker swarm leave -f
-docker swarm init --advertise-addr 20.0.0.11
-
+# sudo service docker restart
+# docker swarm leave -f
+# docker swarm init
 
 ./swarm.sh config set \
-    IMAGE_TAG=pietersynthesis/alpine-mpich-armv7l:cluster      \
+    IMAGE_TAG=$CLUSTERIMAGE      \
     PROJECT_NAME=$PROJNAME  \
     NETWORK_NAME=$NETNAME    \
     NETWORK_SUBNET=20.0.0.0/28   \
-    SSH_ADDR=20.0.0.11      \
+    SSH_ADDR=localhost      \
     SSH_PORT=2222
 
-./swarm.sh up size=3
-./swarm.sh login
+./swarm.sh up size=6
 
 # docker network inspect $NETNAME | grep "IPv4Address"| grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}"
 
