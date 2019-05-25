@@ -1,6 +1,7 @@
 #!/bin/bash
 PROJNAME=test-local-project
 NETNAME=$PROJNAME-network
+#export NETNAME=test-local-project-network
 ARCH=armv7l
 
 LOCALARCH=$(uname -m)
@@ -36,18 +37,19 @@ docker network rm $NETNAME
 
 sudo service docker restart
 docker swarm leave -f
-docker swarm init
+docker swarm init --advertise-addr 20.0.0.11
 
 
 ./swarm.sh config set \
     IMAGE_TAG=pietersynthesis/alpine-mpich-armv7l:cluster      \
     PROJECT_NAME=$PROJNAME  \
     NETWORK_NAME=$NETNAME    \
-    NETWORK_SUBNET=10.0.0.0/28   \
-    SSH_ADDR=localhost      \
+    NETWORK_SUBNET=20.0.0.0/28   \
+    SSH_ADDR=20.0.0.11      \
     SSH_PORT=2222
 
-./swarm.sh up size=6
+./swarm.sh up size=3
+./swarm.sh login
 
 # docker network inspect $NETNAME | grep "IPv4Address"| grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}"
 

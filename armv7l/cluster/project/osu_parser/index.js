@@ -62,12 +62,12 @@ for (let i = 2; i < 18; i++) {
     // })
     sizeOptions.push(val);
 }
-let nodes = ['10.0.0.11', '10.0.0.12', '10.0.0.13'];
+let nodes = [];
 
 if (minimalMode || localOnly)
     nodes = ['127.0.0.1', 'localhost', `${os.hostname()}`];
 else
-    nodes = shell.exec(`nmap -sP 10.0.0.0/24 | grep "(10.0.0" | grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}"`).stdout.split(`\n`).filter(x => x.length > 0);
+    nodes = shell.exec(`nmap -p 22 20.0.0.0/24 | grep "(20.0.0" | grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}"`).stdout.split(`\n`).filter(x => x.length > 0);
 
 console.log('Testing MPI access to nodes', nodes)
 let mpiTestResults = shell.exec(`mpirun -hosts ${nodes.join(',')} hostname`).stdout.split(`\n`).filter(x => x.length > 0);
@@ -298,7 +298,7 @@ function run(conf) {
         .forEach(ptptpbench => {
             distinctNodes.forEach(pair => {
                 let fileName = `${conf.testTag}-pt2pt-${ptptpbench}${pair}.out`;
-                fileName = fileName.replace(new RegExp('10.0.0.1', 'g'), "-")
+                fileName = fileName.replace(new RegExp('20.0.0.1', 'g'), "-")
                 fileName = fileName.replace(new RegExp(',', 'g'), "");
                 fileName = fileName.replace(new RegExp(':', 'g'), "");
 
@@ -319,7 +319,7 @@ function run(conf) {
         .forEach(collectivebench => {
             distinctNodesThreads.forEach(pair => {
                 let fileName = `${conf.testTag}-collective-${collectivebench}${pair}.out`;
-                fileName = fileName.replace(new RegExp('10.0.0.1', 'g'), "-")
+                fileName = fileName.replace(new RegExp('20.0.0.1', 'g'), "-")
                 fileName = fileName.replace(new RegExp(',', 'g'), "");
                 fileName = fileName.replace(new RegExp(':', 'g'), "");
 
@@ -911,7 +911,6 @@ function run(conf) {
         shell.exec(`mv -f ${conf.testTag}.zip resultSets/`);
         let zipPath = `resultSets/${conf.testTag}.zip`;
 
-        console.log("UPLOAD:", s3Upload, minimalMode)
         if (s3Upload && !minimalMode) {
             //configuring parameters
             var params = {

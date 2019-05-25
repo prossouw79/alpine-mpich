@@ -43,7 +43,7 @@ docker swarm init
     IMAGE_TAG=pietersynthesis/alpine-mpich-x86_64:cluster      \
     PROJECT_NAME=$PROJNAME  \
     NETWORK_NAME=$NETNAME    \
-    NETWORK_SUBNET=10.0.0.0/28   \
+    NETWORK_SUBNET=20.0.0.0/28   \
     SSH_ADDR=localhost      \
     SSH_PORT=2222
 
