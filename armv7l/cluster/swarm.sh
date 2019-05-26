@@ -293,13 +293,13 @@ build_and_push_image ()
     printf "\n"
     docker build --compress -t "$IMAGE_TAG" .
 
-    printf "\n"
+    # printf "\n"
 
-    printf "\n\n===> PUSH IMAGE TO REGISTRY"
-    printf "\n%s\n" "$HEADER"
-    echo "$ docker push \"$IMAGE_TAG\""
-    printf "\n"
-    docker push "$IMAGE_TAG"
+    # printf "\n\n===> PUSH IMAGE TO REGISTRY"
+    # printf "\n%s\n" "$HEADER"
+    # echo "$ docker push \"$IMAGE_TAG\""
+    # printf "\n"
+    # docker push "$IMAGE_TAG"
 }
 
 

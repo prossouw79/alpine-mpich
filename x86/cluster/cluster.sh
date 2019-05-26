@@ -133,13 +133,13 @@ build_and_push_image ()
     printf "\n"
     docker build --compress -t "$REGISTRY_ADDR:$REGISTRY_PORT/$IMAGE_NAME" .
 
-    printf "\n"
+    # printf "\n"
 
-    printf "\n\n===> PUSH IMAGE TO REGISTRY"
-    printf "\n%s\n" "$HEADER"
-    echo "$ docker push \"$REGISTRY_ADDR:$REGISTRY_PORT/$IMAGE_NAME\""
-    printf "\n"
-    docker push "$REGISTRY_ADDR:$REGISTRY_PORT/$IMAGE_NAME"
+    # printf "\n\n===> PUSH IMAGE TO REGISTRY"
+    # printf "\n%s\n" "$HEADER"
+    # echo "$ docker push \"$REGISTRY_ADDR:$REGISTRY_PORT/$IMAGE_NAME\""
+    # printf "\n"
+    # docker push "$REGISTRY_ADDR:$REGISTRY_PORT/$IMAGE_NAME"
 }
 
 up_master ()
