@@ -25,6 +25,7 @@ docker build --compress -t pietersynthesis/alpine-mpich-armv7l:onbuild onbuild/
 echo "Building cluster image"
 docker build --compress  -t pietersynthesis/alpine-mpich-armv7l:cluster cluster/
 
+#important: disabled push everywhere else so keep it here
 docker push pietersynthesis/alpine-mpich-armv7l:base
 docker push pietersynthesis/alpine-mpich-armv7l:onbuild
 docker push pietersynthesis/alpine-mpich-armv7l:cluster
