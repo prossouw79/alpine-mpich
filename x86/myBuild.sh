@@ -18,15 +18,15 @@ chmod 600 cluster/ssh/id_rsa
 chmod 600 cluster/ssh/id_rsa.pub
 
 echo "Building base image"
-docker build --compress -t pietersynthesis/alpine-mpich-x86_64:base base/
+docker build --compress -t mesh-network-registry:5000/alpine-mpich-x86_64:base base/
 echo "Building onbuild image"
-docker build --compress -t pietersynthesis/alpine-mpich-x86_64:onbuild onbuild/
+docker build --compress -t mesh-network-registry:5000/alpine-mpich-x86_64:onbuild onbuild/
 echo "Building cluster image"
-docker build --compress  -t pietersynthesis/alpine-mpich-x86_64:cluster cluster/
+docker build --compress  -t mesh-network-registry:5000/alpine-mpich-x86_64:cluster cluster/
 
-# docker push pietersynthesis/alpine-mpich-x86_64:base
-# docker push pietersynthesis/alpine-mpich-x86_64:onbuild
-# docker push pietersynthesis/alpine-mpich-x86_64:cluster
+# docker push mesh-network-registry:5000/alpine-mpich-x86_64:base
+# docker push mesh-network-registry:5000/alpine-mpich-x86_64:onbuild
+# docker push mesh-network-registry:5000/alpine-mpich-x86_64:cluster
 
 cd cluster
 
@@ -40,7 +40,7 @@ docker swarm init
 
 
 ./swarm.sh config set \
-    IMAGE_TAG=pietersynthesis/alpine-mpich-x86_64:cluster      \
+    IMAGE_TAG=mesh-network-registry:5000/alpine-mpich-x86_64:cluster      \
     PROJECT_NAME=$PROJNAME  \
     NETWORK_NAME=$NETNAME    \
     NETWORK_SUBNET=20.0.0.0/28   \

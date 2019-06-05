@@ -1,4 +1,4 @@
-FROM pietersynthesis/alpine-mpich-x86_64:base
+FROM mesh-network-registry:5000/alpine-mpich-x86_64:base
 
 USER root
 

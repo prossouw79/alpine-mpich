@@ -65,13 +65,13 @@ USER ${USER}
 # # ------------------------------------------------------------
 # # (require ssh/ directory in the build context)
 # # ------------------------------------------------------------
-USER root
+ONBUILD USER root
 
-COPY ssh/ ${SSHDIR}/
+ONBUILD COPY ssh/ ${SSHDIR}/
 
-RUN cat ${SSHDIR}/*.pub >> ${SSHDIR}/authorized_keys
-RUN chmod -R 600 ${SSHDIR}/* \
+ONBUILD RUN cat ${SSHDIR}/*.pub >> ${SSHDIR}/authorized_keys
+ONBUILD RUN chmod -R 600 ${SSHDIR}/* \
          && chown -R ${USER}:${USER} ${SSHDIR}
 
 # Switch back to default user when continue the build process
-USER ${USER}
+ONBUILD USER ${USER}
