@@ -1,4 +1,4 @@
-FROM pietersynthesis/alpine-mpich-armv7l:onbuild
+FROM mesh-network-registry:5000/alpine-mpich-armv7l:onbuild
 
 # # ------------------------------------------------------------
 # # Build MPI project

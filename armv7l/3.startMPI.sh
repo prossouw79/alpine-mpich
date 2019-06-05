@@ -16,7 +16,7 @@ fi
 cd cluster
 
 ./swarm.sh config set \
-    IMAGE_TAG=pietersynthesis/alpine-mpich-armv7l:cluster      \
+    IMAGE_TAG=mesh-network-registry:5000/alpine-mpich-armv7l:cluster      \
     PROJECT_NAME=$PROJNAME  \
     NETWORK_NAME=$NETNAME    \
     NETWORK_SUBNET=20.0.0.0/28   \

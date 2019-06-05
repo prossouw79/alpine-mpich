@@ -18,14 +18,21 @@ rm -rf ~/.ssh
 chmod 600 cluster/ssh/id_rsa
 chmod 600 cluster/ssh/id_rsa.pub
 
+# To enable push/pull from this registry:
+#   -  Create or modify /etc/docker/daemon.json:
+#      { "insecure-registries":["mesh-network-registry:5000"] }
+#   -  sudo service docker restart
+
+
+
 echo "Building base image"
-docker build --compress -t pietersynthesis/alpine-mpich-armv7l:base base/
+docker build --compress -t mesh-network-registry:5000/alpine-mpich-armv7l:base base/
 echo "Building onbuild image"
-docker build --compress -t pietersynthesis/alpine-mpich-armv7l:onbuild onbuild/
+docker build --compress -t mesh-network-registry:5000/alpine-mpich-armv7l:onbuild onbuild/
 echo "Building cluster image"
-docker build --compress  -t pietersynthesis/alpine-mpich-armv7l:cluster cluster/
+docker build --compress  -t mesh-network-registry:5000/alpine-mpich-armv7l:cluster cluster/
 
 #important: disabled push everywhere else so keep it here
-docker push pietersynthesis/alpine-mpich-armv7l:base
-docker push pietersynthesis/alpine-mpich-armv7l:onbuild
-docker push pietersynthesis/alpine-mpich-armv7l:cluster
+docker push mesh-network-registry:5000/alpine-mpich-armv7l:base
+docker push mesh-network-registry:5000/alpine-mpich-armv7l:onbuild
+docker push mesh-network-registry:5000/alpine-mpich-armv7l:cluster
