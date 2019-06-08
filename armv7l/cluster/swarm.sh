@@ -200,6 +200,7 @@ up_workers ()
     printf "$ docker service create \\
         --name %s \\
         --replicas %s \\
+        --constraint 'node.role == worker' \\
         --network %s \\
         --user root \\
         %s mpi_bootstrap \\
@@ -214,6 +215,7 @@ up_workers ()
     docker service create                      \
         --name ${MPI_WORKER_SERVICE_NAME}      \
         --replicas ${NUM_WORKER}               \
+        --constraint 'node.role == worker'     \
         --network ${NETWORK_NAME}              \
         --user root                            \
         "${IMAGE_TAG}" mpi_bootstrap             \
