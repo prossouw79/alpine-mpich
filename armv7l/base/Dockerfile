@@ -13,7 +13,8 @@ RUN apk update && apk upgrade \
 # Ex: http://www.mpich.org/static/downloads/3.2/mpich-3.2-installguide.pdf
 # These options are passed to the steps below
 ARG MPICH_VERSION="3.2"
-ARG MPICH_CONFIGURE_OPTIONS="--disable-fortran"
+# FORTRAN required for NAS benchmarks 
+# ARG MPICH_CONFIGURE_OPTIONS="--disable-fortran"
 ARG MPICH_MAKE_OPTION="-j 4"
 
 # Download, build, and install MPICH
