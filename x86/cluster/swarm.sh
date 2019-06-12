@@ -160,7 +160,7 @@ up_master ()
     printf "\n%s\n" "$HEADER"
     printf "$ docker service create \\
         --name %s \\
-        --global    \\
+        --mode global    \\
         --network %s \\
         --publish %s:22 \\
         --user root \\
@@ -175,7 +175,7 @@ up_master ()
 
     docker service create                      \
         --name ${MPI_MASTER_SERVICE_NAME}      \
-        --global                               \
+        --mode global                               \
         --network ${NETWORK_NAME}              \
         --publish ${SSH_PORT}:22               \
         --user root                            \
