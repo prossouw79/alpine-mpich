@@ -163,7 +163,7 @@ up_workers ()
     printf "\n"
     printf "\n%s\n" "$HEADER"
 
-    NUM_WORKER=$((SIZE - 1))
+    NUM_WORKER=$SIZE
     echo "$ docker-compose scale worker=$NUM_WORKER"
     printf "\n"
     docker-compose scale worker=${NUM_WORKER}

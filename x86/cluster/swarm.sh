@@ -192,7 +192,7 @@ up_master ()
 up_workers ()
 {
     printf "\n\n===> SPIN UP WORKER SERVICE"
-    NUM_WORKER=$((SIZE - 1))
+    NUM_WORKER=$SIZE
 
     printf "\n%s\n" "$HEADER"
     printf "$ docker service create \\
@@ -227,7 +227,7 @@ up_workers ()
 scale_workers ()
 {
     printf "\n\n===> SCALE SERVICES"
-    NUM_WORKER=$((SIZE - 1))
+    NUM_WORKER=$SIZE
 
     printf "\n%s\n" "$HEADER"
     printf "$ docker service scale %s=%s" \
