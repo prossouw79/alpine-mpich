@@ -20,17 +20,14 @@ USER ${USER}
 RUN npm install
 RUN node index.js default
 
-USER root
 WORKDIR /project/
 RUN wget https://www.nas.nasa.gov/assets/npb/NPB3.4.tar.gz
 RUN tar -xvf NPB3.4.tar.gz && rm NPB3.4.tar.gz
 RUN mv /project/compile_nas.sh /project/NPB3.4/NPB3.4-MPI/
 WORKDIR /project/NPB3.4/NPB3.4-MPI 
-RUN mv config/make.def.template config/make.def
 #https://www.nas.nasa.gov/publications/npb_problem_sizes.html
-RUN chmod +x compile_nas.sh 
-RUN ash compile_nas.sh
-USER ${USER}
+RUN bash compile_nas.sh
+
 
 # ####################
 # For Docker beginner:
