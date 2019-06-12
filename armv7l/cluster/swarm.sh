@@ -368,36 +368,13 @@ show_instruction ()
     echo '                 Alpine MPICH Cluster             '
     echo '                      Swarm Mode                  '
     echo ''
-    echo ' More info: https://github.com/NLKNguyen/alpine-mpich'
-    echo ''
-    echo '=============================================================='
-    echo ''
-
     echo "To run MPI programs in an interative shell:"
-    echo "  1. Login to master node:"
+    echo "  Login to master node:"
     echo "     $ ./swarm.sh login"
     echo ""
     echo "     which is equivalent to:"
     echo "     $ ssh -o \"StrictHostKeyChecking no\" -i ssh/id_rsa -p $SSH_PORT mpi@$SSH_ADDR"
-    echo ""
-    echo "  2. Execute MPI programs inside master node, for example:"
-    echo "     $ mpirun hostname"
-    echo "      *----------------------------------------------------*"
-    echo "      | Default hostfile of connected nodes in the cluster |"
-    echo "      | is automatically updated at /etc/opt/hosts         |"
-    echo "      | To obtain hostfile manually: $ get_hosts > hosts   |"
-    echo "      * ---------------------------------------------------*"
-    echo ""
-    echo ""
-    echo "To run directly a shell command at master node:"
-    echo "     $ ./swarm.sh exec [COMMAND]"
-    echo ""
-    echo "     Example: "
-    echo "     $ ./swarm.sh exec mpirun hostname"
-    echo ""
 }
-
-
 
 #############################################
 
