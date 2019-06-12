@@ -99,10 +99,7 @@ usage ()
     echo "  "
 }
 
-HEADER="
-         __v_
-        (.___\/{
-~^~^~^~^~^~^~^~^~^~^~^~^~"
+HEADER=""
 
 set_variables ()
 {
