@@ -160,8 +160,7 @@ up_master ()
     printf "\n%s\n" "$HEADER"
     printf "$ docker service create \\
         --name %s \\
-        --replicas 1 \\
-        --constraint 'node.role == manager'    \\
+        --global    \\
         --network %s \\
         --publish %s:22 \\
         --user root \\
@@ -176,8 +175,7 @@ up_master ()
 
     docker service create                      \
         --name ${MPI_MASTER_SERVICE_NAME}      \
-        --replicas 1                           \
-        --constraint 'node.role == manager'    \
+        --global                               \
         --network ${NETWORK_NAME}              \
         --publish ${SSH_PORT}:22               \
         --user root                            \
