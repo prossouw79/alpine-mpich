@@ -19,7 +19,7 @@ cd cluster
     IMAGE_TAG=mesh-network-registry:5000/alpine-mpich-x86_64:cluster      \
     PROJECT_NAME=$PROJNAME  \
     NETWORK_NAME=$NETNAME    \
-    NETWORK_SUBNET=20.0.0.0/28   \
+    NETWORK_SUBNET=20.0.0.0/24   \
     SSH_ADDR=10.0.0.1      \
     SSH_PORT=2222
 

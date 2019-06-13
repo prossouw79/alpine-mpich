@@ -19,8 +19,8 @@ cd cluster
     IMAGE_TAG=mesh-network-registry:5000/alpine-mpich-armv7l:cluster      \
     PROJECT_NAME=$PROJNAME  \
     NETWORK_NAME=$NETNAME    \
-    NETWORK_SUBNET=20.0.0.0/28   \
-    SSH_ADDR=10.0.0.1      \
+    NETWORK_SUBNET=20.0.0.0/24   \
+    SSH_ADDR=localhost      \
     SSH_PORT=2222
 
 ./swarm.sh up size=3

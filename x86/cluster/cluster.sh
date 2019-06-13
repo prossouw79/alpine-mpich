@@ -126,9 +126,9 @@ build_and_push_image ()
 {
     printf "\n\n===> BUILD IMAGE"
     printf "\n%s\n" "$HEADER"
-    echo "$ docker build --compress -t \"$REGISTRY_ADDR:$REGISTRY_PORT/$IMAGE_NAME\" ."
+    echo "$ docker build  -t \"$REGISTRY_ADDR:$REGISTRY_PORT/$IMAGE_NAME\" ."
     printf "\n"
-    docker build --compress -t "$REGISTRY_ADDR:$REGISTRY_PORT/$IMAGE_NAME" .
+    docker build  -t "$REGISTRY_ADDR:$REGISTRY_PORT/$IMAGE_NAME" .
 
     # printf "\n"
 
