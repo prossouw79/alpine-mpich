@@ -63,7 +63,7 @@ USER ${USER}
 
 
 # # ------------------------------------------------------------
-# # ONBUILD (require ssh/ directory in the build context)
+# # (require ssh/ directory in the build context)
 # # ------------------------------------------------------------
 ONBUILD USER root
 

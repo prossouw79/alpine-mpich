@@ -286,9 +286,9 @@ build_and_push_image ()
 {
     printf "\n\n===> BUILD IMAGE"
     printf "\n%s\n" "$HEADER"
-    echo "$ docker build  -t \"$IMAGE_TAG\" ."
+    echo "$ docker build -t \"$IMAGE_TAG\" ."
     printf "\n"
-    docker build  -t "$IMAGE_TAG" .
+    docker build -t "$IMAGE_TAG" .
 
     # printf "\n"
 
@@ -375,8 +375,6 @@ show_instruction ()
     echo "     which is equivalent to:"
     echo "     $ ssh -o \"StrictHostKeyChecking no\" -i ssh/id_rsa -p $SSH_PORT mpi@$SSH_ADDR"
 }
-
-
 
 #############################################
 

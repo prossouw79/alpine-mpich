@@ -23,14 +23,28 @@ chmod 600 cluster/ssh/id_rsa.pub
 #      { "insecure-registries":["mesh-network-registry:5000"] }
 #   -  sudo service docker restart
 
-echo "Building base image"
-docker build  -t mesh-network-registry:5000/alpine-mpich-x86_64:base base/
-echo "Building onbuild image"
-docker build  -t mesh-network-registry:5000/alpine-mpich-x86_64:onbuild onbuild/
-echo "Building cluster image"
-docker build  -t mesh-network-registry:5000/alpine-mpich-x86_64:cluster cluster/
 
-#important: disabled push everywhere else so keep it here
-docker push mesh-network-registry:5000/alpine-mpich-x86_64:base
-docker push mesh-network-registry:5000/alpine-mpich-x86_64:onbuild
-docker push mesh-network-registry:5000/alpine-mpich-x86_64:cluster
+registry=mesh-network-registry:5000
+image=$registry/alpine-mpich-x86_64
+
+docker pull $image:base
+docker pull $image:onbuild
+docker pull $image:cluster
+
+read -p "Do you need to rebuild images?" -n 1 -r
+echo    # (optional) move to a new line
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+echo "Building base image"
+    docker build  -t $image:base base/
+    echo "Building onbuild image"
+    docker build  -t $image:onbuild onbuild/
+    echo "Building cluster image"
+    docker build   -t $image:cluster cluster/
+
+    #important: disabled push everywhere else so keep it here
+    docker push $image:base
+    docker push $image:onbuild
+    docker push $image:cluster
+fi
+
