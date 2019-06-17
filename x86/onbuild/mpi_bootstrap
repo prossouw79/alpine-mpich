@@ -45,6 +45,7 @@ case $ROLE in
         # Auto update default host file in background and dumb all output
         auto_update_hosts "${HYDRA_HOST_FILE}" > /dev/null 2>&1 &
 
+        echo "master" > /project/role
         # Start ssh server
         /usr/sbin/sshd -D
         ;;
@@ -55,6 +56,7 @@ case $ROLE in
         # Start ssh server in background
         /usr/sbin/sshd -D &
 
+        echo "worker" > /project/role
         # Keep trying to connect to master node and stay there indefinitely so that master node can see
         # the connected hosts that are ready for MPI work
         while sleep 1

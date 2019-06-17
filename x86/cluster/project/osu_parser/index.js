@@ -49,10 +49,6 @@ var cors = require('cors');
 app.use(express.static('public'))
 app.use(cors());
 
-let networkInterfaces = shell.exec(`ip -o link show | awk -F': ' '{print $2}'`, { silent: true })
-    .stdout.split(/\r?\n/)
-    .filter(x => x.length > 0 && !['lo'].includes(x));
-
 let sizeOptions = [];
 for (let i = 2; i < 18; i++) {
     let val = Math.pow(2, i);
@@ -182,30 +178,6 @@ let collective = [
         },
         {
             type: 'select',
-            name: 'packetLoss',
-            message: 'Do you want to add packet loss',
-            choices: [
-                { title: 'PL=0%', value: 0, selected: true },
-                { title: 'PL=0,1,2%', value: 2 },
-                { title: 'PL=0,1,2,4%', value: 4 },
-                { title: 'PL=0,1,2,4,8', value: 8 },
-            ]
-        },
-        {
-            type: 'select',
-            name: 'networkInterface',
-            message: 'To what device should the packet loss be applied',
-            choices: [{ title: 'none', value: null, selected: true }]
-                .concat(networkInterfaces.map(function (x) {
-                    return {
-                        title: x,
-                        value: x,
-                        selected: false
-                    }
-                }))
-        },
-        {
-            type: 'select',
             name: 'warmupReps',
             message: 'Pick # of warmup transmissions',
             choices: warmupRepValues.map(function (i) {
@@ -227,7 +199,7 @@ let collective = [
             })
         }
     ];
-    let requiredKeys = ['testTag', 'maxSize', 'participatingNodes', 'threadsToUse', 'skippedTests', 'packetLoss', 'networkInterface', 'warmupReps', 'measuredReps']
+    let requiredKeys = ['testTag', 'maxSize', 'participatingNodes', 'threadsToUse', 'skippedTests', 'warmupReps', 'measuredReps']
     const conf = minimalMode ?
         {
             testTag: 'test-01',
@@ -235,8 +207,6 @@ let collective = [
             participatingNodes: ['127.0.0.1', 'localhost', `${os.hostname()}`],
             threadsToUse: 1,
             skippedTests: collective.concat(pt2pt).filter(function (x) { return x != "osu_bw" }),
-            packetLoss: 0,
-            networkInterface: null,
             warmupReps: 1,
             measuredReps: 3
         }
@@ -338,52 +308,38 @@ function run(conf) {
     console.log(benchList)
 
     let lastBench = '';
-
-    let packetLossModes = [0];
-
-    if (conf.networkInterface) {
-        for (let i = 1; i <= conf.packetLoss; i *= 2) {
-            packetLossModes.push(i);
-        }
-    }
     let subfolder = moment(runTimestamp).format('hh-mm-MM-DD-YY');
-    packetLossModes.forEach(packetLoss => {
-        if (conf.networkInterface) {
-            console.log(`Applying ${packetLoss}% packet loss to ${conf.participatingNodes.join(',')} on ${conf.networkInterface}`);
-            shell.exec(`mpirun -hosts ${conf.participatingNodes.join(',')} tc qdisc del dev ${conf.networkInterface} root netem`)
-            shell.exec(`mpirun -hosts ${conf.participatingNodes.join(',')} tc qdisc add dev ${conf.networkInterface} root netem loss ${packetLoss}%`);
-        }
-        shell.exec(`mkdir -p ${resultFolder}/${subfolder}`)
 
-        for (let i = 0; i < benchList.length; i++) {
-            const b = benchList[i];
-            let padding = '*********************************************************';
-            if (b.bench != lastBench) {
-                lastBench = b.bench;
-                let displayString = `       ${b.bench}       `;
-                let desiredLength = padding.length;
-                let padL = true;
-                console.log(padding);
-                while (displayString.length < desiredLength) {
-                    displayString = padL ? ('*' + displayString) : (displayString + '*');
+    shell.exec(`mkdir -p ${resultFolder}/${subfolder}`)
 
-                    padL = !padL;
-                }
-                console.log(displayString)
-                console.log(padding);
+    for (let i = 0; i < benchList.length; i++) {
+        const b = benchList[i];
+        let padding = '*********************************************************';
+        if (b.bench != lastBench) {
+            lastBench = b.bench;
+            let displayString = `       ${b.bench}       `;
+            let desiredLength = padding.length;
+            let padL = true;
+            console.log(padding);
+            while (displayString.length < desiredLength) {
+                displayString = padL ? ('*' + displayString) : (displayString + '*');
+
+                padL = !padL;
             }
-            console.log(`Running ${i + 1}/${benchList.length}: `);
-            let destination = `${resultFolder}/${subfolder}/${b.logfile}`
-            let command = `${b.command} ${b.pair} ${b.bench} ${b.args}`
-            shell.exec(`echo '# test identifier: ${conf.testTag}' > ${destination}`);
-            shell.exec(`echo '# netem packet loss: ${packetLoss}%' >> ${destination}`);
-            shell.exec(`echo '# command run: ${command}' >> ${destination}`)
-
-            let job = `${command} >> ${destination}`;
-            console.log(job)
-            shell.exec(job);
+            console.log(displayString)
+            console.log(padding);
         }
-    });
+        console.log(`Running ${i + 1}/${benchList.length}: `);
+        let destination = `${resultFolder}/${subfolder}/${b.logfile}`
+        let command = `${b.command} ${b.pair} ${b.bench} ${b.args}`
+        shell.exec(`echo '# test identifier: ${conf.testTag}' > ${destination}`);
+        shell.exec(`echo '# command run: ${command}' >> ${destination}`)
+
+        let job = `${command} >> ${destination}`;
+        console.log(job)
+        shell.exec(job);
+    }
+
 
 
     let benches = pt2pt.concat(collective);

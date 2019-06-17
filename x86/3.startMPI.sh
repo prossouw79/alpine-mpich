@@ -20,7 +20,7 @@ cd cluster
     PROJECT_NAME=$PROJNAME  \
     NETWORK_NAME=$NETNAME    \
     NETWORK_SUBNET=20.0.0.0/24   \
-    SSH_ADDR=localhost      \
+    SSH_ADDR=10.0.0.11      \
     SSH_PORT=2222
 
 ./swarm.sh up size=3
