@@ -61,16 +61,37 @@ for (let i = 2; i < 18; i++) {
 let nodes = [];
 
 if (minimalMode || localOnly)
-    nodes = ['127.0.0.1', 'localhost', `${os.hostname()}`];
-else
-    nodes = shell.exec(`nmap -p 22 20.0.0.0/24 | grep "(20.0.0" | grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}"`).stdout.split(`\n`).filter(x => x.length > 0);
+    nodes = [{
+        hostname: '127.0.0.1',
+        ip: '127.0.0.1',
+        role: 'master'
+    }, {
+        hostname: 'localhost',
+        ip: 'localhost',
+        role: 'master'
+    }, {
+        hostname: `${os.hostname()}`,
+        ip: `${os.hostname()}`,
+        role: 'master'
+    }];
+else {
+    nodes = shell.exec(`nmap --open -p 22 20.0.0.0/24 -oG - | grep "/open" | awk '{ print $2 }'`)
+        .stdout
+        .split(`\n`)
+        .filter(x => x.length > 0)
+        .map(ipv4 => {
+            return {
+                hostname: shell.exec(`mpirun -hosts ${ipv4} hostname`).stdout.split(`\n`).filter(hn => hn.length > 0)[0],
+                ip: ipv4,
+                role: shell.exec(`mpirun -hosts ${ipv4} cat /project/role`).stdout.split(`\n`).filter(r => r.length > 0)[0]
+            }
+        });
 
-console.log('Testing MPI access to nodes', nodes)
-let mpiTestResults = shell.exec(`mpirun -hosts ${nodes.join(',')} hostname`).stdout.split(`\n`).filter(x => x.length > 0);
+}
 
-let threads = []
-for (let i = 1; i <= os.cpus().length; i *= 2) {
-    threads.push(i);
+if (!nodes || nodes.length == 0) {
+    `No nodes detected or defined, exiting.`
+    process.exit();
 }
 
 let warmupRepValues = [0, 10, 30, 50];
@@ -125,21 +146,11 @@ let collective = [
             message: 'Pick participating nodes',
             choices: nodes.map(function (i) {
                 return {
-                    title: `Node ${i}`,
-                    value: i,
-                    selected: true
+                    title: `${i.role}: ${i.hostname} ${i.ip}`,
+                    value: i.ip,
+                    selected: i.role == 'worker' //only workers participate by default
                 };
             })
-        },
-        {
-            type: 'select',
-            name: 'threadsToUse',
-            message: 'How many threads to use per node (collective tests only)',
-            choices: threads.map(
-                function (x) {
-                    return { title: x, value: x, selected: x == os.cpus().length }
-                }).reverse()
-
         },
         {
             type: 'multiselect',
@@ -199,7 +210,7 @@ let collective = [
             })
         }
     ];
-    let requiredKeys = ['testTag', 'maxSize', 'participatingNodes', 'threadsToUse', 'skippedTests', 'warmupReps', 'measuredReps']
+    let requiredKeys = ['testTag', 'maxSize', 'participatingNodes', 'skippedTests', 'warmupReps', 'measuredReps']
     const conf = minimalMode ?
         {
             testTag: 'test-01',
@@ -305,7 +316,7 @@ function run(conf) {
 
     benchList = _.orderBy(benchList, b => b.bench)
 
-    console.log(benchList)
+    // console.log(benchList)
 
     let lastBench = '';
     let subfolder = moment(runTimestamp).format('hh-mm-MM-DD-YY');
@@ -323,21 +334,43 @@ function run(conf) {
             console.log(padding);
             while (displayString.length < desiredLength) {
                 displayString = padL ? ('*' + displayString) : (displayString + '*');
-
                 padL = !padL;
             }
             console.log(displayString)
             console.log(padding);
         }
-        console.log(`Running ${i + 1}/${benchList.length}: `);
-        let destination = `${resultFolder}/${subfolder}/${b.logfile}`
-        let command = `${b.command} ${b.pair} ${b.bench} ${b.args}`
-        shell.exec(`echo '# test identifier: ${conf.testTag}' > ${destination}`);
-        shell.exec(`echo '# command run: ${command}' >> ${destination}`)
 
-        let job = `${command} >> ${destination}`;
-        console.log(job)
-        shell.exec(job);
+        console.log('Testing connectivity...')
+        let hostnames = shell.exec(`mpirun -hosts ${b.pair} hostname`).stdout.split(`\n`).filter(x => x.length > 0);
+        let passed = hostnames.length == 2;
+        if (passed) {
+            console.log(`\nRunning ${i + 1}/${benchList.length}: `);
+            let destination = `${resultFolder}/${subfolder}/${b.logfile}`
+            let command = `${b.command} ${b.pair} ${b.bench} ${b.args}`
+            shell.exec(`echo '# test identifier: ${conf.testTag}' > ${destination}`);
+            shell.exec(`echo '# command run: ${command}' >> ${destination}`)
+
+            let job = `${command} | tee ${destination}`;
+            let outputLines = shell.exec(job).stdout.split(`\n`).filter(x => x.length > 0)
+
+            let testPassed = true;
+
+            ['MPI_ERROR', 'Fatal','failed','error'].forEach(errorTrigger => {
+                outputLines.forEach(line => {
+                    if (line.includes(errorTrigger)) {
+                        testPassed = false;
+                    }
+                });
+            });
+            if(!testPassed){
+                console.log(`Error! Restarting experiment`)
+                i = 0;
+                shell.exec(`rm -rf ${resultFolder}/${subfolder}`)
+                shell.exec(`mkdir -p ${resultFolder}/${subfolder}`);
+            }
+        } else {
+            console.error(`Connectivity failed!`)
+        }
     }
 
 
